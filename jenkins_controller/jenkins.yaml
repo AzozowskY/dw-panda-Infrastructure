@@ -1,27 +1,3 @@
-jenkins:
-  securityRealm:
-    local:
-      users:
-       - id: "panda"
-         password: "panda"
-  authorizationStrategy:
-    globalMatrix:
-      permissions:
-        - "Overall/Administer:panda"
-  numExecutors: 0
-  nodes:
-  - permanent:
-      labelString: "agent"
-      launcher:
-        ssh:
-          credentialsId: "jenkins_agent"
-          host: "192.168.44.44"
-          port: 2222
-          sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
-      name: "agent"
-      remoteFS: "/home/jenkins/agent"
-      retentionStrategy: "always"
-
 credentials:
   system:
     domainCredentials:
@@ -33,7 +9,6 @@ credentials:
           scope: GLOBAL
       - basicSSHUserPrivateKey:
           id: "jenkins_agent"
-          username: "jenkins"
           privateKeySource:
             directEntry:
               privateKey: |
@@ -65,7 +40,34 @@ credentials:
                 o1epS4clbUspxKat9tbIIRccKa9GWXVDNLih8TslLCBoL/knJc+aqw==
                 -----END RSA PRIVATE KEY-----
           scope: GLOBAL
-
+          username: "jenkins"
+jobs:
+  - file: /usr/share/jenkins/ref/jobs/backend.groovy
+  - file: /usr/share/jenkins/ref/jobs/frontend.groovy
+  - file: /usr/share/jenkins/ref/jobs/app_of_apps.groovy
+jenkins:
+  numExecutors: 0
+  nodes:
+   - permanent:
+       labelString: "agent"
+       launcher:
+         ssh:
+           credentialsId: "jenkins_agent"
+           host: "192.168.44.44"
+           port: 2222
+           sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
+       name: "agent"
+       remoteFS: "/home/jenkins/agent"
+       retentionStrategy: "always"
+  securityRealm:
+    local:
+      users:
+        - id: "panda"
+          password: "panda"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:panda"
 tool:
   sonarRunnerInstallation:
     installations:
@@ -75,10 +77,11 @@ tool:
           installers:
           - sonarRunnerInstaller:
               id: "5.0.1.3006"
-
 unclassified:
   location:
     url: "http://192.168.44.44:8880/"
+  locale:
+    ignoreAcceptLanguage: true
   sonarGlobalConfiguration:
     buildWrapperEnabled: true
     installations:
